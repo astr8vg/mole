@@ -2,7 +2,7 @@ package com.zd.mole.process;
 
 import java.util.List;
 
-import com.zd.mole.task.Task;
+import com.zd.mole.task.entity.Task;
 
 public interface ProcessHandler {
 	
@@ -16,12 +16,14 @@ public interface ProcessHandler {
 	 */
 	String URL_REGEX = "((https?://)?([\\w\\d]+\\.)+[\\w\\d]+)?(/?.+)";
 	
+	String CN_REGEX = "([\u4e00-\u9fa5\\（\\）\\-\\w\\d\\(\\)]+)";
+	
 	/**
 	 * 保存数据时修剪数据
 	 * @param data
 	 * @return
 	 */
-	String trim (String data);
+	String trim (String text);
 	
 	/**
 	 * 处理数据
@@ -29,5 +31,5 @@ public interface ProcessHandler {
 	 * @param data
 	 * @return 返回新任务，如果为空值，则不创建新任务
 	 */
-	List<Task> handler(Task task, String data);
+	List<Task> handler(Task task, String text);
 }

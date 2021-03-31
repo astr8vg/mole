@@ -5,11 +5,18 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.zd.mole.process.ProcessHandler;
-import com.zd.mole.task.Task;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
 
+import com.zd.mole.process.ProcessHandler;
+import com.zd.mole.task.entity.Task;
+
+@Component
 public class MohurdDataserviceQueryCompListHandler implements ProcessHandler {
 
+	private Log log = LogFactory.getLog(getClass());
+	
 	/*
 	 * (non-Javadoc)
 	 * @see com.zd.mole.process.ProcessDataHandler#trim(java.lang.String)
@@ -31,16 +38,15 @@ public class MohurdDataserviceQueryCompListHandler implements ProcessHandler {
 		
 		while(m.find()) {
 			Task newTask = new Task();
-			String requestURL = m.group(1);
-			newTask.setRequestURL(requestURL);
-			newTask.setFileURL(requestURL.replaceAll("/", "\\\\") + "\\");
-			String pk = requestURL.replaceFirst("/dataservice/query/comp/compDetail/", "");
-			newTask.setFileName(pk);
-			newTask.setProcessHandlerClassName(MohurdDataserviceQueryCompCompDetailHandler.class.getName());
+			String requestUrl = m.group(1);
+			newTask.setRequestUrl(requestUrl);
+			String pk = requestUrl.replaceFirst("/dataservice/query/comp/compDetail/", "");
+			newTask.setProcessHandlerClassName(MohurdDataserviceQueryCompCompDetailHandler.class.getSimpleName());
 			newTasks.add(newTask);
 			//设置主键
 			newTask.setCode(pk);
-			System.out.println(m.group(1));
+			
+			log.debug(m.group(1));
 		}
 		
 		return newTasks;

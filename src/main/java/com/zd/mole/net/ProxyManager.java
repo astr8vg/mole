@@ -1,23 +1,48 @@
 package com.zd.mole.net;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.zd.mole.net.proxy.BetterProxy;
+import com.zd.mole.net.proxy.ProxyListRequest;
+import com.zd.mole.net.proxy.impl.ArsenalProxyListRequest;
+
 public class ProxyManager {
 	
-	private static ProxyManager proxyManager = new ProxyManager();
-
-	public static ProxyManager newInstance() {
-		return proxyManager;
+	private static ProxyManager pm = new ProxyManager(); 
+	public static ProxyManager getInstance() {
+		return pm;
 	}
 	
-	private Queue<Proxy> cache = new ConcurrentLinkedQueue<>(); 
+	private Logger log = LogManager.getLogger(ProxyManager.class);
+	
+	private Queue<BetterProxy> allProxyCache = new ConcurrentLinkedQueue<>(); 
+	
+	private Queue<BetterProxy> fastProxyCache = new ConcurrentLinkedQueue<>(); 
+	private Queue<BetterProxy> normalProxyCache = new ConcurrentLinkedQueue<>(); 
+	private Queue<BetterProxy> slowProxyCache = new ConcurrentLinkedQueue<>(); 
+	private Queue<BetterProxy> timeOutProxyCache = new ConcurrentLinkedQueue<>();
+	private Queue<BetterProxy> sleepProxyCache = new ConcurrentLinkedQueue<>();
+	
+	private long fastResponseTime 	= 10000;
+	private long normalResponseTime = 30000;
+	private long slowResponseTime 	= 60000;
+	
+	/** 使用间隔 */
+	private long intervalTime = 2000;
 	
 	//未来可以增加代理使用记录，记录响应时间和失败次数
-	/** 一个代理ip被重复创建的次数 */
-	private int repeatTimes = 5;
+	private int picketLine = 10;
+	private int getNum = 100;
+	
+	private ProxyListRequest proxyListRequest = new ArsenalProxyListRequest();
 	
 	private ProxyManager() {
 		Runnable cacheUpdater = new Runnable() {
@@ -25,16 +50,20 @@ public class ProxyManager {
 			@Override
 			public void run() {
 				while(true) {
-					if(cache.size() == 0) {
-						downProxys();
-						synchronized (cache) {
-							cache.notifyAll();
+					synchronized (allProxyCache) {
+						while((fastProxyCache.size() + normalProxyCache.size() + slowProxyCache.size()) > picketLine) {
+							try {
+							allProxyCache.wait();
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
 						}
-					}
-					try {
-						Thread.sleep(10);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+						wakeUpProxy();
+						if ((fastProxyCache.size() + normalProxyCache.size() + slowProxyCache.size()) < getNum) {
+							makeProxys();
+						}
+						allProxyCache.notifyAll();
+						clean();
 					}
 				}
 			}
@@ -45,17 +74,68 @@ public class ProxyManager {
 	}
 	
 	/**
+	 * 唤醒代理
+	 */
+	private void wakeUpProxy() {
+		int count = sleepProxyCache.size();
+		sleepProxyCache.removeIf(proxy -> {
+			if (System.currentTimeMillis() - proxy.getLastRequestTime() > intervalTime) { 
+				if (proxy.getResponsedTime() < fastResponseTime){
+					fastProxyCache.offer(proxy);
+				} else if (proxy.getResponsedTime() < normalResponseTime) {
+					normalProxyCache.offer(proxy);
+				} else if (proxy.getResponsedTime() < slowResponseTime) {
+					slowProxyCache.offer(proxy);
+				} else {
+					timeOutProxyCache.offer(proxy);
+				}
+				if(!allProxyCache.contains(proxy)) {
+					allProxyCache.offer(proxy);
+				}
+				return true;
+			}
+			return false;
+		});
+		count -= sleepProxyCache.size();
+		log.info("唤醒代理：" + count + " 个");
+	}
+	
+	/**
+	 * 清除无效代理
+	 */
+	private void clean() {
+		int count = timeOutProxyCache.size();
+		timeOutProxyCache.removeIf(proxy -> {
+			boolean b = System.currentTimeMillis() - proxy.getLastRequestTime() > 1000 * 60 * 15;
+			if(b) {
+				allProxyCache.remove(proxy);
+			}
+			return b;
+		});
+		while(timeOutProxyCache.size() > 2000) {
+			BetterProxy proxy = timeOutProxyCache.remove();
+			allProxyCache.remove(proxy);
+		}
+		log.info("清除超时代理：" + (count - timeOutProxyCache.size()));
+	}
+	/**
 	 * 下载代理
 	 */
-	private void downProxys() {
-		for (int i = 0; i < repeatTimes; i++) {
-			Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("111.62.243.64", 8080));
-//		InetSocketAddress addr = new InetSocketAddress("182.141.46.215", 9000);
-//		InetSocketAddress addr = new InetSocketAddress("121.232.144.13", 9000);
-//		InetSocketAddress addr = new InetSocketAddress("60.188.237.240", 9000);
-//		InetSocketAddress addr = new InetSocketAddress("117.90.137.194", 9000);
-//		InetSocketAddress addr = new InetSocketAddress("106.56.185.11", 80);
-			cache.offer(proxy);
+	private void makeProxys() {
+		int count = 0;
+		try {
+			List<InetSocketAddress> addrs = proxyListRequest.get();
+			for (InetSocketAddress addr : addrs) {
+				BetterProxy proxy = new BetterProxy(Proxy.Type.HTTP, addr);
+				if(!allProxyCache.contains(proxy)) {
+					allProxyCache.offer(proxy);
+					normalProxyCache.offer(proxy);
+					count++;
+				}
+			}
+			log.info("成功请求新代理：" + count);
+		} catch (IOException e) {
+			log.error("请求代理列表失败" + e.getMessage());
 		}
 	}
 	
@@ -63,17 +143,30 @@ public class ProxyManager {
 	 * 获取代理
 	 * @return
 	 */
-	public Proxy get() {
-		Proxy proxy = null;
-//		synchronized (cache) {
-//			while((proxy = cache.poll()) == null) {
-//				try {
-//					cache.wait();
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		}
+	public BetterProxy get() {
+		BetterProxy proxy = null;
+		synchronized (allProxyCache) {
+			log.info("fastProxyCache: " + fastProxyCache.size() 
+				+ " normalProxyCache: " + normalProxyCache.size() 
+				+ " slowProxyCache: " + slowProxyCache.size()
+				+ " sleepProxyCache: " + sleepProxyCache.size()
+				+ " timeOutProxyCache: " + timeOutProxyCache.size()
+				+ " allProxyCache: " + allProxyCache.size());
+			while((proxy = fastProxyCache.poll()) == null 
+					&& (proxy = normalProxyCache.poll()) == null
+					&& (proxy = slowProxyCache.poll()) == null) {
+				try {
+					allProxyCache.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			allProxyCache.notifyAll();
+		}
 		return proxy;
+	}
+	
+	public void putBack(BetterProxy proxy) {
+		sleepProxyCache.offer(proxy);
 	}
 }

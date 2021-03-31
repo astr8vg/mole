@@ -1,6 +1,7 @@
 package	com.zd.mole.site.mohurd.entity;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,12 +12,19 @@ public class Ot_company_qual_info {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
+	@Column(name = "CompanyCode")
 	private String CompanyCode;
+	@Column(name = "AptitudeType")
 	private String AptitudeType;
+	@Column(name = "AptitudeNo")
 	private String AptitudeNo;
+	@Column(name = "AptitudeName")
 	private String AptitudeName;
+	@Column(name = "IssueDate")
 	private Date IssueDate;
+	@Column(name = "ValidDate")
 	private Date ValidDate;
+	@Column(name = "Office")
 	private String Office;
 	private String create_by;
 	private Date create_date;

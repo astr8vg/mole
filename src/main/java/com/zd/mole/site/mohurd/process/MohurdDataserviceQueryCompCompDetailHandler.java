@@ -1,6 +1,6 @@
 package com.zd.mole.site.mohurd.process;
 
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -8,23 +8,28 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
 
-import com.zd.mole.App;
-import com.zd.mole.db.ThirdService;
 import com.zd.mole.process.ProcessHandler;
 import com.zd.mole.site.mohurd.entity.Ot_company_info;
 import com.zd.mole.site.mohurd.entity.Sys_dict;
-import com.zd.mole.task.Task;
+import com.zd.mole.task.entity.Task;
+import com.zd.mole.utils.RegexUtils;
 
+@Component
+@Transactional
 public class MohurdDataserviceQueryCompCompDetailHandler implements ProcessHandler {
 	
-	private Log log = LogFactory.getLog(App.class);
+	private Log log = LogFactory.getLog(getClass());
 
+	@PersistenceContext 
+	private EntityManager em;
+	
 	@Override
 	public String trim(String data) {
 		// TODO Auto-generated method stub
@@ -36,124 +41,81 @@ public class MohurdDataserviceQueryCompCompDetailHandler implements ProcessHandl
 
 		Ot_company_info ci = new Ot_company_info();
 		
+		ci.setId(task.getCode());
+		ci.setCreate_by("1");
+		ci.setUpdate_by("1");
+		ci.setCreate_date(new Date());
+		ci.setUpdate_date(new Date());
+		ci.setDel_flag("0");
 		//企业名称
 		String regex = "<div class=\"user_info spmtop\">"
-				+ "\\s*<b><i class=\"fa fa-building-o\"></i>\\s*([\u4e00-\u9fa5]+)</b>"
+				+ "\\s*<b><i class=\"fa fa-building-o\"></i>\\s*" + CN_REGEX
+				+ "(<span class='qy_src_type'>造价企业</span>)?</b>"
 				+ "\\s*</div>";
-				
+		String companyname = RegexUtils.find(regex, data);
+		log.debug("企业名称：" + companyname);
+		ci.setCompanyname(companyname);
+		
 		String regex1 = "<tr>"
 				+ "\\s*<th>统一社会信用代码</th>"
 				+ "\\s*<td colspan=\"3\" data-header=\"统一社会信用代码\">([\\d\\w]+)</td>"
 				+ "\\s*</tr>";
+		String companycode = RegexUtils.find(regex1, data);
+		log.debug("统一社会信用代码：" + companycode);
+		ci.setCompanycode(companycode);
 		
 		String regex11 = "<tr>"
 				+ "\\s*<th>&nbsp;&nbsp;组织机构代码/<br/>营业执照编号</th>"
-				+ "\\s*<td colspan=\"3\" data-header=\"组织机构代码/营业执照编号\">([\\w\\d-&;/]+)</td>"
+				+ "\\s*<td colspan=\"3\" data-header=\"组织机构代码/营业执照编号\">([\u4e00-\u9fa5\\w\\d-&;/\\(\\)\\（\\）\\s]+)</td>"
 				+ "\\s*</tr>";
-
+		String companyOrgCode = RegexUtils.find(regex11, data);
+		log.debug("组织机构代码号/营业执照编号：" + companyOrgCode);
+		ci.setCompanyOrgCode(companyOrgCode);
+		
 		String regex2 = "<tr>"
 				+ "\\s*<th>企业法定代表人</th>"
-				+ "\\s*<td data-header=\"企业法定代表人\">([\u4e00-\u9fa5]+)</td>"
+				+ "\\s*<td data-header=\"企业法定代表人\">([\u4e00-\u9fa5\\（\\）\\-\\w\\d\\(\\)\\·]+)</td>"
 				+ "\\s*<th>企业登记注册类型</th>"
-				+ "\\s*<td data-header=\"企业登记注册类型\">[\u4e00-\u9fa5]+</td>"
-				+ "\\s*</tr>";
+				+ "\\s*<td data-header=\"企业登记注册类型\">";
+		String companyer = RegexUtils.find(regex2, data);
+		ci.setCompanyer(companyer);
+		log.debug("企业法定代表人：" + companyer);
 		
-		String regex3 = "<tr>"
-				+ "\\s*<th>企业法定代表人</th>"
-				+ "\\s*<td data-header=\"企业法定代表人\">[\u4e00-\u9fa5]+</td>"
-				+ "\\s*<th>企业登记注册类型</th>"
-				+ "\\s*<td data-header=\"企业登记注册类型\">([\u4e00-\u9fa5]+)</td>"
+		String regex3 = "<th>企业登记注册类型</th>"
+				+ "\\s*<td data-header=\"企业登记注册类型\">([\u4e00-\u9fa5\\（\\）\\-\\w\\d\\(\\)\\、]+)</td>"
 				+ "\\s*</tr>";
+		String companytype = RegexUtils.find(regex3, data);
+		List<Sys_dict> dicts = em.createQuery("from Sys_dict where type = 'oLife_ComRegisterType' and label = :label")
+			.setParameter("label", companytype)
+			.getResultList();
+		String value = dicts.stream().findFirst().orElse(new Sys_dict()).getValue();
+		companytype = Optional.ofNullable(value).orElse(companytype);
+		ci.setCompanytype(companytype);
+		log.debug("企业登记注册类型：" + companytype);
 
 		String regex4 = "<tr>"
 				+ "\\s*<th>企业注册属地</th>"
 				+ "\\s*<td colspan=\"3\" data-header=\"企业注册属地\">([\u4e00-\u9fa5]+)</td>"
 				+ "\\s*</tr>";
+		String companyarea = RegexUtils.find(regex4, data);
+		List<Sys_dict> dicts4 = em.createQuery("from Sys_dict where type = 'oLife_ComAreaScope' and label = :label")
+			.setParameter("label", companyarea)
+			.getResultList();
+		String value4 = dicts4.stream().findFirst().orElse(new Sys_dict()).getValue();
+		companyarea = Optional.ofNullable(value4).orElse(companyarea);
+		ci.setCompanyarea(companyarea);
+		log.debug("企业注册属地：" + companyarea);
 		
 		String regex5 = "<tr>"
 				+ "\\s*<th>企业经营地址</th>"
-				+ "\\s*<td colspan=\"3\" data-header=\"企业经营地址\">([\u4e00-\u9fa5\\d]+)</td>"
+				+ "\\s*<td colspan=\"3\" data-header=\"企业经营地址\">(.+)</td>"
 				+ "\\s*</tr>";
+		String companyaddress = RegexUtils.find(regex5, data);
+		ci.setCompanyaddress(companyaddress);
+		log.debug("企业经营地址：" + companyaddress);
 		
-		Pattern p = Pattern.compile(regex);
-		Matcher m = p.matcher(data);
-		if( m.find() ) {
-			String companyname = m.group(1);
-			log.debug("企业名称：" + companyname);
-			ci.setCompanyname(m.group(1));
-		}
-		
-		Pattern p1 = Pattern.compile(regex1);
-		Matcher m1 = p1.matcher(data);
-		if( m1.find() ) {
-			String companycode = m1.group(1);
-			log.debug("统一社会信用代码：" + companycode);
-			ci.setCompanycode(companycode);
-			
-		}
-		
-		Pattern p11 = Pattern.compile(regex11);
-		Matcher m11 = p11.matcher(data);
-		if( m11.find() ) {
-			String companyOrgCode = m11.group(1);
-			log.debug("组织机构代码号：" + companyOrgCode);
-			ci.setCompanyOrgCode(companyOrgCode);
-		}
-		
-		Pattern p2 = Pattern.compile(regex2);
-		Matcher m2 = p2.matcher(data);
-		if( m2.find() ) {
-			String companyer = m2.group(1);
-			ci.setCompanyer(companyer);
-			log.debug("企业法定代表人：" + companyer);
-		}
-		
-		Pattern p3 = Pattern.compile(regex3);
-		Matcher m3 = p3.matcher(data);
-		if( m3.find() ) {
-			String companytype = m3.group(1);
-			ci.setCompanytype(companytype);
-			
-			EntityManager em = ThirdService.newInstance().em();
-			List<Sys_dict> dicts = em.createQuery("from Sys_dict where type = 'oLife_ComRegisterType' and label = :label")
-				.setParameter("label", companytype)
-				.getResultList();
-			String value = dicts.stream().findFirst().orElse(new Sys_dict()).getValue();
-			companytype = Optional.ofNullable(value).orElse(companytype);
-			em.close();
-			
-			log.debug("企业登记注册类型：" + companytype);
-		}
-		
-		Pattern p4 = Pattern.compile(regex4);
-		Matcher m4 = p4.matcher(data);
-		if( m4.find() ) {
-			String companyarea = m4.group(1);
-			ci.setCompanyarea(companyarea);
-			EntityManager em = ThirdService.newInstance().em();
-			List<Sys_dict> dicts = em.createQuery("from Sys_dict where type = 'oLife_ComAreaScope' and label = :label")
-				.setParameter("label", companyarea)
-				.getResultList();
-			String value = dicts.stream().findFirst().orElse(new Sys_dict()).getValue();
-			companyarea = Optional.ofNullable(value).orElse(companyarea);
-			em.close();
-			
-			ci.setCompanytype(companyarea);
-			log.debug("企业注册属地：" + companyarea);
-		}
-		
-		Pattern p5 = Pattern.compile(regex5);
-		Matcher m5 = p5.matcher(data);
-		if( m5.find() ) {
-			String companyaddress = m5.group(1);
-			ci.setCompanyaddress(companyaddress);
-			System.out.println(m5.group(1));
-			log.debug("企业经营地址：" + companyaddress);
-			
-		}
-		
-		ThirdService.newInstance().saveOrUpdate(ci);
-		
+		//TODO jdbc 异常捕获
+		em.merge(ci);
 
 		List<Task> newTasks = new LinkedList<>();
 		String regex10 = "<li class=\"activeTinyTab\"><A id=\"apt_tab\" data-contentid=\"apt_tabcontent\" "
@@ -162,33 +124,18 @@ public class MohurdDataserviceQueryCompCompDetailHandler implements ProcessHandl
 		Matcher m10 = p10.matcher(data);
 		if( m10.find() ) {
 			Task newTask = new Task();
-			String requestURL = m10.group(1);
-			newTask.setRequestURL(requestURL);
+			newTask.setCode(task.getCode());
+			String requestUrl = m10.group(1);
+			newTask.setRequestUrl(requestUrl);
 			
-			newTask.setFileURL(requestURL.replaceAll("/", "\\\\") + "\\");
-			String fileName = requestURL.replaceFirst("/dataservice/query/comp/caDetailList/", "");
-			newTask.setFileName(fileName);
-			newTask.setProcessHandlerClassName(MohurdDataserviceQueryCompCaDetailListHandler.class.getName());
+			newTask.setProcessHandlerClassName(MohurdDataserviceQueryCompCaDetailListHandler.class.getSimpleName());
 			
 			newTasks.add(newTask);
-			System.out.println(m10.group(1));
+			log.debug("新增任务请求地址：" + requestUrl);
 		}
 		
-		
-		return newTasks;
+//		return newTasks;
+		return null;
 	}
 	
-	public static void main(String[] args) {
-		String companytype = "有限责任公司";
-		EntityManager em = ThirdService.newInstance().em();
-		List<Sys_dict> dicts = em.createQuery("from Sys_dict where type = 'oLife_ComRegisterType' and label = :label")
-			.setParameter("label", companytype)
-			.getResultList();
-		String value = dicts.stream().findFirst().orElse(new Sys_dict()).getValue();
-		companytype = Optional.ofNullable(value).orElse(companytype);
-		em.close();
-		System.out.println(companytype);
-		ThirdService.newInstance().close();
-	}
-
 }
