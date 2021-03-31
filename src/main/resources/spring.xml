@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans.xsd">
+                
+	<bean id="mole" class="com.zd.mole.Mole">
+		<property name="processHandlers">
+			<map>
+				<entry key="MohurdDataserviceQueryCompListHandler" value-ref="mohurdDataserviceQueryCompListHandler" />
+				<entry key="MohurdDataserviceQueryCompCompDetailHandler" value-ref="mohurdDataserviceQueryCompCompDetailHandler" />
+				<entry key="MohurdDataserviceQueryCompCaDetailListHandler" value-ref="mohurdDataserviceQueryCompCaDetailListHandler" />
+				<entry key="MohurdAsiteQualaptAptDataHandler" value-ref="mohurdAsiteQualaptAptDataHandler" />
+			</map>
+		</property>
+	</bean>
+
+</beans>

@@ -1,4 +1,4 @@
-package com.zd.mole.task;
+package com.zd.mole.task.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -6,9 +6,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
-import com.zd.mole.process.ProcessHandler;
+import com.zd.mole.task.RequestMethod;
+import com.zd.mole.task.TaskStatus;
 
 /**
  * 任务
@@ -31,11 +31,14 @@ public class Task {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	/** 代码 */
+	private String code;
+	
 	/** 主机地址 http://jzsc.mohurd.gov.cn/ */
-	private String hostURL;
+	private String hostUrl;
 	
 	/** 请求地址(刨去主机地址) */
-	private String requestURL;
+	private String requestUrl;
 	
 	/** http请求方式POST GET */
 	private RequestMethod method;
@@ -43,28 +46,12 @@ public class Task {
 	/** 请求参数 */
 	private String param;
 	
-	/** 本地目录 */
-	private String folderURI;
-	
-	/** 文件路径 */
-	private String fileURL;
-	
-	/** 文件名 */
-	private String fileName;
-	
 	/** 任务状态 */
 	private TaskStatus status; 
 	
 	/** 处理类名称 */
 	private String processHandlerClassName;
 	
-	/** 处理类 */
-	@Transient
-	private ProcessHandler processDataHandler;
-	
-	/** 代码 */
-	private String code;
-
 	public Long getId() {
 		return id;
 	}
@@ -73,20 +60,20 @@ public class Task {
 		this.id = id;
 	}
 
-	public String getRequestURL() {
-		return requestURL;
+	public String getHostUrl() {
+		return hostUrl;
 	}
 
-	public void setRequestURL(String requestURL) {
-		this.requestURL = requestURL;
+	public void setHostUrl(String hostUrl) {
+		this.hostUrl = hostUrl;
 	}
 
-	public TaskStatus getStatus() {
-		return status;
+	public String getRequestUrl() {
+		return requestUrl;
 	}
 
-	public void setStatus(TaskStatus status) {
-		this.status = status;
+	public void setRequestUrl(String requestUrl) {
+		this.requestUrl = requestUrl;
 	}
 
 	public RequestMethod getMethod() {
@@ -105,36 +92,12 @@ public class Task {
 		this.param = param;
 	}
 
-	public String getHostURL() {
-		return hostURL;
+	public TaskStatus getStatus() {
+		return status;
 	}
 
-	public void setHostURL(String hostURL) {
-		this.hostURL = hostURL;
-	}
-
-	public String getFolderURI() {
-		return folderURI;
-	}
-
-	public void setFolderURI(String folderURI) {
-		this.folderURI = folderURI;
-	}
-
-	public String getFileURL() {
-		return fileURL;
-	}
-
-	public void setFileURL(String fileURL) {
-		this.fileURL = fileURL;
-	}
-
-	public String getFileName() {
-		return fileName;
-	}
-
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
+	public void setStatus(TaskStatus status) {
+		this.status = status;
 	}
 
 	public String getProcessHandlerClassName() {
@@ -143,14 +106,6 @@ public class Task {
 
 	public void setProcessHandlerClassName(String processHandlerClassName) {
 		this.processHandlerClassName = processHandlerClassName;
-	}
-
-	public ProcessHandler getProcessDataHandler() {
-		return processDataHandler;
-	}
-
-	public void setProcessDataHandler(ProcessHandler processDataHandler) {
-		this.processDataHandler = processDataHandler;
 	}
 
 	public String getCode() {
