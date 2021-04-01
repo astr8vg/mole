@@ -4,12 +4,10 @@ public enum TaskStatus {
 	
 	//准备
 	Ready,
-	//待处理
-	ReadyToDispose,
-	//处理中
-	Disposing,
+	//在队列中
+	InTheQueue,
 	//保存失败
-	SaveFailed,
+	Failed,
 	//保存成功
-	SaveSucceed
+	Succeed
 }

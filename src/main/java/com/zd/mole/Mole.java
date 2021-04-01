@@ -6,8 +6,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.zd.mole.process.ProcessHandler;
@@ -16,9 +16,9 @@ import com.zd.mole.task.service.TaskService;
 @Component
 public class Mole {
 	
-	private Log log = LogFactory.getLog(getClass()); 
+	private Logger log = LoggerFactory.getLogger(getClass()); 
 	
-	private int consumerCount = 100;
+	private int consumerCount = 1;
 	
 	@Resource
 	private TaskService taskService;

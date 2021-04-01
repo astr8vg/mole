@@ -35,8 +35,6 @@ public class TaskConsumer implements Runnable {
 	public void run() {
 		while(true) {
 			Task task = store.get();
-			task.setStatus(TaskStatus.Disposing);
-			service.update(task);
 			String httpUrl = task.getHostUrl() + task.getRequestUrl();
 			Map<String, String> headers = new HashMap<>();
 			headers.put("Accept-Encoding", "gzip");
@@ -53,11 +51,11 @@ public class TaskConsumer implements Runnable {
 				}
 				ph.handler(task, text);
 				
-				task.setStatus(TaskStatus.SaveSucceed);
+				task.setStatus(TaskStatus.Succeed);
 				service.update(task);
 			} catch (IOException e) {
 				log.error("保存失败[id:{}] {}", task.getId(), e.getMessage());
-				task.setStatus(TaskStatus.SaveFailed);
+				task.setStatus(TaskStatus.Ready);
 				service.update(task);
 			}
 		}

@@ -13,13 +13,12 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpXMLRequest {
 
-	private static Logger log = LogManager.getLogger(HttpXMLRequest.class);
-	
+	private static Logger log = LoggerFactory.getLogger(HttpXMLRequest.class);
 	
 	private final static int CONNECT_TIMEOUT = 15000;
 	private final static int READ_TIMEOUT = 30000;

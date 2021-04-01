@@ -12,14 +12,14 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zd.mole.net.ProxyManager;
 
 public class ProxyHttpXMLRequest {
 
-	private static Logger log = LogManager.getLogger(ProxyHttpXMLRequest.class);
+	private static Logger log = LoggerFactory.getLogger(ProxyHttpXMLRequest.class);
 	
 	private final static int CONNECT_TIMEOUT = 60000;
 	private final static int READ_TIMEOUT = 60000;

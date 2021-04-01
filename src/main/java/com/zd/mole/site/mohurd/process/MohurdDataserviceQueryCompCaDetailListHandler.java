@@ -45,7 +45,7 @@ public class MohurdDataserviceQueryCompCaDetailListHandler implements ProcessHan
 		String regex = "<tr class=\"row\">"
 				+ "\\s*<td data-header=\"序号\">\\d+</td>"
 				+ "\\s*<td data-header=\"资质类别\">([\u4e00-\u9fa5]+)</td>"
-				+ "\\s*<td data-header=\"资质证书号\">([\\w\\d]+)</td>"
+				+ "\\s*<td data-header=\"资质证书号\">([\u4e00-\u9fa5\\w\\d-&;/\\(\\)\\（\\）\\s]+)</td>"
 				+ "\\s*<td data-header=\"资质名称\" style=\"text-align:left;[\\w\\d]+\">"
 				+ "\\s*([\u4e00-\u9fa5]+)"
 				+ "\\s*</td>"
@@ -66,7 +66,7 @@ public class MohurdDataserviceQueryCompCaDetailListHandler implements ProcessHan
 			cqi.setUpdate_date(new Date());
 			cqi.setDel_flag("0");
 			cqi.setCompanyCode(task.getCode());
-			cqi.setAptitudeType(sysDictService.findByTypeLabel("oLife_CredentialsType", m.group(2)));
+			cqi.setAptitudeType(sysDictService.findByTypeLabel("oLife_CredentialsType", m.group(1)));
 			cqi.setAptitudeNo(m.group(2));
 			cqi.setAptitudeName(m.group(3));
 			try {

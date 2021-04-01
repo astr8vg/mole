@@ -7,8 +7,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.zd.mole.task.TaskStatus;
@@ -18,7 +16,7 @@ import com.zd.mole.task.entity.Task;
 @Transactional
 public class TaskService {
 	
-	private Logger log = LoggerFactory.getLogger(getClass());
+//	private Logger log = LoggerFactory.getLogger(getClass());
 	
 	@PersistenceContext 
 	private EntityManager em;
@@ -32,9 +30,8 @@ public class TaskService {
 		int count = em.createQuery("update Task set status = :newStatus where status in :status")
 					.setParameter("newStatus", TaskStatus.Ready)
 					.setParameter("status", Arrays.asList(
-							TaskStatus.ReadyToDispose, 
-							TaskStatus.Disposing, 
-							TaskStatus.SaveFailed
+							TaskStatus.InTheQueue, 
+							TaskStatus.Failed
 					))
 					.executeUpdate();
 		return count;

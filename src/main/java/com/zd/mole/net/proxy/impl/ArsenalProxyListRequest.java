@@ -11,16 +11,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zd.mole.net.HttpXMLRequest;
-import com.zd.mole.net.ProxyManager;
 import com.zd.mole.net.proxy.ProxyListRequest;
 
 public class ArsenalProxyListRequest implements ProxyListRequest {
 
-	private Logger log = LogManager.getLogger(ProxyManager.class);
+	private Logger log = LoggerFactory.getLogger(getClass());
 	private String url = "http://39.106.76.185:52410/proxy";
 	
 	@Override

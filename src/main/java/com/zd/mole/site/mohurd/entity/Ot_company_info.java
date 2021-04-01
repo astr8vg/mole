@@ -4,8 +4,10 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "ot_company_info")
 public class Ot_company_info {
 	@Id
 	private String id;

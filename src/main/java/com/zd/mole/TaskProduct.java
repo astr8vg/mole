@@ -32,7 +32,7 @@ public class TaskProduct implements Runnable {
 		while(true) {
 			List<Task> tasks = service.findByStatus(TaskStatus.Ready, readyCount);
 			for (Task task : tasks) {
-				task.setStatus(TaskStatus.ReadyToDispose);
+				task.setStatus(TaskStatus.InTheQueue);
 				service.update(task);
 				store.put(task);
 			}

@@ -6,8 +6,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "ot_company_qual_info")
 public class Ot_company_qual_info {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

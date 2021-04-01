@@ -37,6 +37,7 @@ public class MohurdAsiteRegionIndexHandler implements ProcessHandler {
 
 		ObjectMapper mapper = new ObjectMapper();
 		try {
+			@SuppressWarnings("unchecked")
 			List<LinkedHashMap<String, String>> list = mapper.readValue(text, ArrayList.class);
 			list.forEach(l -> {
 				MonhurdCompListRegion r = new MonhurdCompListRegion();

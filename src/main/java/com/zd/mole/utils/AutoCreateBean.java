@@ -249,11 +249,11 @@ public class AutoCreateBean {
         return null;
     }
 
-    public static void main(String[] args) throws Exception {
-        AutoCreateBean auto = new AutoCreateBean();
-        List<String> list = auto.TBlist();
-        auto.GenEntity(list, "com/zd/mole/site/mohurd/entity");
-
-    }
+//    public static void main(String[] args) throws Exception {
+//        AutoCreateBean auto = new AutoCreateBean();
+//        List<String> list = auto.TBlist();
+//        auto.GenEntity(list, "com/zd/mole/site/mohurd/entity");
+//
+//    }
 
 }

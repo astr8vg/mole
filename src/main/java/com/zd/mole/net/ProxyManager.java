@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zd.mole.net.proxy.BetterProxy;
 import com.zd.mole.net.proxy.ProxyListRequest;
@@ -21,7 +21,8 @@ public class ProxyManager {
 		return pm;
 	}
 	
-	private Logger log = LogManager.getLogger(ProxyManager.class);
+	private Logger log = LoggerFactory.getLogger(getClass());
+	
 	
 	private Queue<BetterProxy> allProxyCache = new ConcurrentLinkedQueue<>(); 
 	
