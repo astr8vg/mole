@@ -4,7 +4,7 @@
         xsi:schemaLocation="http://www.springframework.org/schema/beans
                 http://www.springframework.org/schema/beans/spring-beans.xsd">
                 
-	<bean id="mole" class="com.zd.mole.Mole">
+	<bean id="taskConsumer" class="com.zd.mole.TaskConsumer">
 		<property name="processHandlers">
 			<map>
 				<entry key="MohurdDataserviceQueryCompListHandler" value-ref="mohurdDataserviceQueryCompListHandler" />

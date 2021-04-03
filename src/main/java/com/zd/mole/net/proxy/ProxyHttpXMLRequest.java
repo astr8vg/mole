@@ -10,12 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.zip.GZIPInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.zd.mole.net.ProxyManager;
 
 public class ProxyHttpXMLRequest {
 
@@ -24,6 +23,26 @@ public class ProxyHttpXMLRequest {
 	private final static int CONNECT_TIMEOUT = 60000;
 	private final static int READ_TIMEOUT = 60000;
 
+	private static LongAdder b = new LongAdder();
+	private static long bs = 0;
+	
+	static {
+		//计算每秒网速多少
+		Thread t = new Thread(() -> {
+			long interval = 5000;
+			while(true) {
+				try {
+					Thread.sleep(interval);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				bs = b.longValue() / (interval / 1000);
+				b.reset();
+			}
+		});
+		t.setDaemon(true);
+		t.start();
+	}
 	
 	public static void sendGet(String httpUrl, Map<String,String> headers, OutputStream out) throws IOException  {
 		send(httpUrl, headers, "GET", null, out);
@@ -71,10 +90,11 @@ public class ProxyHttpXMLRequest {
 	        } else {
 	        	in = connection.getInputStream();
 	        }
-			byte[] buff = new byte[10240];
+			byte[] buff = new byte[1024];
 			int i = 0;
 			while( (i = in.read(buff, 0, buff.length)) != -1) {
 				out.write(buff, 0, i);
+				b.add(i);
 			};
 			out.flush();
 			long spendTime = System.currentTimeMillis() - beginTime;
@@ -93,5 +113,9 @@ public class ProxyHttpXMLRequest {
 			pm.putBack(proxy);
 		}
 	}
-	
+
+	/** 每秒byte数 */
+	public static long getBs() {
+		return bs;
+	}
 }

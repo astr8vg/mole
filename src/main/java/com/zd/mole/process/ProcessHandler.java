@@ -16,7 +16,7 @@ public interface ProcessHandler {
 	 */
 	String URL_REGEX = "((https?://)?([\\w\\d]+\\.)+[\\w\\d]+)?(/?.+)";
 	
-	String CN_REGEX = "([\u4e00-\u9fa5\\（\\）\\-\\w\\d\\(\\)]+)";
+	String CN_REGEX = "([\u4e00-\u9fa5\\（\\）\\-\\w\\d\\(\\)\\、]+)";
 	
 	/**
 	 * 保存数据时修剪数据

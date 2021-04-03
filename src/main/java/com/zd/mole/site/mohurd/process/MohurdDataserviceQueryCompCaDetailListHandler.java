@@ -1,5 +1,9 @@
 package com.zd.mole.site.mohurd.process;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,6 +24,7 @@ import com.zd.mole.process.ProcessHandler;
 import com.zd.mole.site.mohurd.entity.Ot_company_qual_info;
 import com.zd.mole.site.mohurd.service.SysDictService;
 import com.zd.mole.task.entity.Task;
+import com.zd.mole.utils.RegexUtils;
 
 @Component
 @Transactional
@@ -41,24 +46,12 @@ public class MohurdDataserviceQueryCompCaDetailListHandler implements ProcessHan
 
 	@Override
 	public List<Task> handler(Task task, String data) {
-		
-		String regex = "<tr class=\"row\">"
-				+ "\\s*<td data-header=\"序号\">\\d+</td>"
-				+ "\\s*<td data-header=\"资质类别\">([\u4e00-\u9fa5]+)</td>"
-				+ "\\s*<td data-header=\"资质证书号\">([\u4e00-\u9fa5\\w\\d-&;/\\(\\)\\（\\）\\s]+)</td>"
-				+ "\\s*<td data-header=\"资质名称\" style=\"text-align:left;[\\w\\d]+\">"
-				+ "\\s*([\u4e00-\u9fa5]+)"
-				+ "\\s*</td>"
-				+ "\\s*<td data-header=\"发证日期\">(\\d{4}-\\d{2}-\\d{2})</td>"
-				+ "\\s*<td data-header=\"证书有效期\">(\\d{4}-\\d{2}-\\d{2})</td>"
-				+ "\\s*<td data-header=\"发证机关\">([\u4e00-\u9fa5]+)</td>"
-				+ "\\s*<td class=\"view\">"
-				+ "\\s*<a title=\"查看证书完整信息\" href=\"javascript:;\" class=\"layeropenwin\" data-qyid=\"[\\w\\d]+\" data-certno=\"[\\w\\d]+\">证书信息<div class=\"hide\">[\\w\\d]+</div></a>"
-				+ "\\s*</td>"
-				+ "\\s*</tr>";
+		String regex = "<tr class=\"row\">((?:\\r\\n|.)*?)</tr>";
 		Pattern p = Pattern.compile(regex);
 		Matcher m = p.matcher(data);
 		while(m.find()) {
+			String tr = m.group(1);
+
 			Ot_company_qual_info cqi = new Ot_company_qual_info();
 			cqi.setCreate_by("1");
 			cqi.setUpdate_by("1");
@@ -66,33 +59,43 @@ public class MohurdDataserviceQueryCompCaDetailListHandler implements ProcessHan
 			cqi.setUpdate_date(new Date());
 			cqi.setDel_flag("0");
 			cqi.setCompanyCode(task.getCode());
-			cqi.setAptitudeType(sysDictService.findByTypeLabel("oLife_CredentialsType", m.group(1)));
-			cqi.setAptitudeNo(m.group(2));
-			cqi.setAptitudeName(m.group(3));
+
+			String aptitudeType = RegexUtils.find("<td data-header=\"资质类别\">([\u4e00-\u9fa5]+)</td>", tr);
+			cqi.setAptitudeType(sysDictService.findByTypeLabel("oLife_CredentialsType", aptitudeType));
+			cqi.setAptitudeNo(RegexUtils.find("<td data-header=\"资质证书号\">([\u4e00-\u9fa5\\w\\d-&;/\\(\\)\\（\\）\\s]+)</td>", tr));
+			String aptitudeName = RegexUtils.find(
+					"<td data-header=\"资质名称\" style=\"text-align:left;[\\w\\d\\s-:;]+\">"
+					+ "\\s*" + "([\u4e00-\u9fa5\\（\\）\\-\\w\\d\\(\\)\\、\\Ⅰ\\Ⅱ/]+)"
+					+ "\\s*(<i.+</i>)*" 
+					+ "\\s*</td>", tr);
+			cqi.setAptitudeName(aptitudeName);
 			try {
-				cqi.setIssueDate(new SimpleDateFormat("yyyy-MM-dd").parse(m.group(4)));
+				cqi.setIssueDate(new SimpleDateFormat("yyyy-MM-dd").parse(RegexUtils.find("<td data-header=\"发证日期\">(\\d{4}-\\d{2}-\\d{2})</td>", tr)));
 			} catch (ParseException e) {
 				log.error(e);
-				throw new RuntimeException(e);
 			}
 			try {
-				cqi.setIssueDate(new SimpleDateFormat("yyyy-MM-dd").parse(m.group(5)));
+				cqi.setValidDate(new SimpleDateFormat("yyyy-MM-dd").parse(RegexUtils.find("<td data-header=\"证书有效期\">(\\d{4}-\\d{2}-\\d{2})</td>", tr)));
 			} catch (ParseException e) {
 				log.error(e);
-				throw new RuntimeException(e);
 			}
-			cqi.setOffice(m.group(6));
-			log.debug("资质类别：" + m.group(1));
-			log.debug("资质证书号：" + m.group(2));
-			log.debug("资质名称：" + m.group(3));
-			log.debug("发证日期：" + m.group(4));
-			log.debug("证书有效期：" + m.group(5));
-			log.debug("发证机关：" + m.group(6));
-			
+			cqi.setOffice(RegexUtils.find("<td data-header=\"发证机关\">" + CN_REGEX +"</td>", tr));
 			em.persist(cqi);
 		}
 		
 		return null;
 	}
-
+	
+	public static void main(String[] args) throws IOException {
+		FileInputStream in = new FileInputStream("d:\\1.html.txt");
+		InputStreamReader r = new InputStreamReader(in);
+		BufferedReader reader = new BufferedReader(r);
+		String text = "";
+		String s;
+		while((s = reader.readLine()) != null) {
+			text += s + "\r\n"; 
+		}
+		MohurdDataserviceQueryCompCaDetailListHandler handler = new MohurdDataserviceQueryCompCaDetailListHandler();
+		handler.handler(new Task(), text);
+	}
 }

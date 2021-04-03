@@ -5,8 +5,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.zd.mole.net.proxy.ProxyHttpXMLRequest;
 import com.zd.mole.process.ProcessHandler;
@@ -15,22 +18,18 @@ import com.zd.mole.task.TaskStatus;
 import com.zd.mole.task.entity.Task;
 import com.zd.mole.task.service.TaskService;
 
+@Component
 public class TaskConsumer implements Runnable {
 	
 	private Logger log = LoggerFactory.getLogger(getClass());
 	
 	private TaskStore store;
 
-	private TaskService service;
+	@Resource
+	private TaskService taskService;
 	
 	private Map<String, ProcessHandler> processHandlers;
-
-	public TaskConsumer(TaskStore store, TaskService service, Map<String, ProcessHandler> processHandlers) {
-		this.store = store;
-		this.service = service;
-		this.processHandlers = processHandlers;
-	}
-
+	
 	@Override
 	public void run() {
 		while(true) {
@@ -52,12 +51,23 @@ public class TaskConsumer implements Runnable {
 				ph.handler(task, text);
 				
 				task.setStatus(TaskStatus.Succeed);
-				service.update(task);
+				taskService.update(task);
 			} catch (IOException e) {
 				log.error("保存失败[id:{}] {}", task.getId(), e.getMessage());
 				task.setStatus(TaskStatus.Ready);
-				service.update(task);
+				taskService.update(task);
+			} catch (Exception e) {
+				task.setStatus(TaskStatus.Failed);
+				taskService.update(task);
 			}
 		}
+	}
+
+	public void setStore(TaskStore store) {
+		this.store = store;
+	}
+
+	public void setProcessHandlers(Map<String, ProcessHandler> processHandlers) {
+		this.processHandlers = processHandlers;
 	}
 }

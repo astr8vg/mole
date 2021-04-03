@@ -13,7 +13,7 @@ import org.springframework.context.annotation.ImportResource;
  */
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"com.zd.mole.**"})
-@EntityScan(basePackages = {"com.zd.mole.task.entity.**", "com.zd.mole.site.**.entity"})
+@EntityScan(basePackages = {"com.zd.mole.**.entity"})
 @ImportResource(locations = {"classpath:spring.xml"})
 public class App {
 	

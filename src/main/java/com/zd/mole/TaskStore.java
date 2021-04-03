@@ -43,4 +43,8 @@ public class TaskStore {
 		}
 		return task;
 	}
+
+	public void setStore(LinkedList<Task> store) {
+		this.store = store;
+	}
 }
