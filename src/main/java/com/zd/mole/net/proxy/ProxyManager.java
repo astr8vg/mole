@@ -36,7 +36,7 @@ public class ProxyManager {
 	private long slowResponseTime 	= 60000;
 	
 	/** 使用间隔 */
-	private long intervalTime = 2000;
+	private long intervalTime = 5000;
 	
 	//未来可以增加代理使用记录，记录响应时间和失败次数
 	private int fastProxyCount = 100;
@@ -60,6 +60,12 @@ public class ProxyManager {
 				}
 				downProxys();
 				clean();
+				//休眠1秒，避免请求速度过快
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		} ); 
 		t.setDaemon(true);
@@ -133,7 +139,20 @@ public class ProxyManager {
 				sleepProxyCache.offer(proxy);
 			}
 		}
-		log.info("唤醒代理：" + wakeupCount + " 个");
+		if(wakeupCount > 0) {
+			log.info("唤醒代理：" + wakeupCount + " 个");
+		} else {
+			log.debug("唤醒代理：" + wakeupCount + " 个");
+		}
+//		if(wakeupCount == 0) {
+//			synchronized (allProxyCache) {
+//				try {
+//					allProxyCache.wait();
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}
 	}
 	
 	/**

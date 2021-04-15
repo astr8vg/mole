@@ -28,12 +28,6 @@ public class MohurdAsiteQualaptAptDataHandler implements ProcessHandler {
 	private EntityManager em;
 	
 	@Override
-	public String trim(String data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public List<Task> handler(Task task, String text) {
 		String regex = "<tr class=\"data_row\">" 
 					+ "\\s*<td><input class=\"icheck\" type=\"checkbox\" value='\\{\"apt_code\":\"([\\w\\d]+\\s*)\", \"apt_scope\":\"" + CN_REGEX + "\"\\}'></td>"

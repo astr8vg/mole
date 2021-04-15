@@ -31,12 +31,6 @@ public class MohurdDataserviceQueryCompCompDetailHandler implements ProcessHandl
 	private EntityManager em;
 	
 	@Override
-	public String trim(String data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public List<Task> handler(Task task, String data) {
 
 		Ot_company_info ci = new Ot_company_info();

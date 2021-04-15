@@ -33,13 +33,13 @@ public class TaskStore {
 		Task task = null;
 		synchronized (store) {
 			while((task = store.poll()) == null) {
-				store.notifyAll();
 				try {
 					store.wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
+			store.notifyAll();
 		}
 		return task;
 	}

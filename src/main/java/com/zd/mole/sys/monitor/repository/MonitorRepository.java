@@ -4,6 +4,6 @@ import org.springframework.data.repository.CrudRepository;
 
 import com.zd.mole.sys.monitor.entity.Monitor;
 
-public interface MonitorRepository extends CrudRepository<Monitor, Short> {
+public interface MonitorRepository extends CrudRepository<Monitor, String> {
 	
 }

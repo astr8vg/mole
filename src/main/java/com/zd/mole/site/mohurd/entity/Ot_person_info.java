@@ -1,64 +1,67 @@
 package	com.zd.mole.site.mohurd.entity;
-import java.math.BigDecimal;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "sys_dict")
-public class Sys_dict {
-	
+@Table(name = "ot_person_info")
+public class Ot_person_info {
 	@Id
 	private String id;
-	private String value;
-	private String label;
-	private String type;
-	private String description;
-	private BigDecimal sort;
-	private String parent_id;
+	@Column(name = "Name")
+	private String Name;
+	@Column(name = "Sex")
+	private String Sex;
+	@Column(name = "CustId")
+	private String CustId;
+	private String profession;
+	@Column(name = "CustType")
+	private String CustType;
 	private String create_by;
 	private Date create_date;
 	private String update_by;
 	private Date update_date;
 	private String remarks;
-	private Boolean del_flag;
+	private String del_flag;
+	private String check_status;
 	public void setId(String id){
 		this.id = id;
 	}
 	public String getId(){
 		return id;
 	}
-	public void setValue(String value){
-		this.value = value;
+	public void setName(String Name){
+		this.Name = Name;
 	}
-	public String getValue(){
-		return value;
+	public String getName(){
+		return Name;
 	}
-	public void setLabel(String label){
-		this.label = label;
+	public void setSex(String Sex){
+		this.Sex = Sex;
 	}
-	public String getLabel(){
-		return label;
+	public String getSex(){
+		return Sex;
 	}
-	public void setType(String type){
-		this.type = type;
+	public void setCustId(String CustId){
+		this.CustId = CustId;
 	}
-	public String getType(){
-		return type;
+	public String getCustId(){
+		return CustId;
 	}
-	public void setDescription(String description){
-		this.description = description;
+	public void setProfession(String profession){
+		this.profession = profession;
 	}
-	public String getDescription(){
-		return description;
+	public String getProfession(){
+		return profession;
 	}
-	public void setParent_id(String parent_id){
-		this.parent_id = parent_id;
+	public void setCustType(String CustType){
+		this.CustType = CustType;
 	}
-	public String getParent_id(){
-		return parent_id;
+	public String getCustType(){
+		return CustType;
 	}
 	public void setCreate_by(String create_by){
 		this.create_by = create_by;
@@ -90,16 +93,16 @@ public class Sys_dict {
 	public String getRemarks(){
 		return remarks;
 	}
-	public BigDecimal getSort() {
-		return sort;
-	}
-	public void setSort(BigDecimal sort) {
-		this.sort = sort;
-	}
-	public void setDel_flag(Boolean del_flag) {
+	public void setDel_flag(String del_flag){
 		this.del_flag = del_flag;
 	}
-	public Boolean getDel_flag() {
+	public String getDel_flag(){
 		return del_flag;
+	}
+	public void setCheck_status(String check_status){
+		this.check_status = check_status;
+	}
+	public String getCheck_status(){
+		return check_status;
 	}
 }

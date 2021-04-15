@@ -1,8 +1,6 @@
 package com.zd.mole.sys.monitor.entity;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -11,25 +9,23 @@ import javax.persistence.Table;
 public class Monitor {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Short id;
+	private String paramName;
 	
-	/** 每秒byte数*/
-	private Long bs;
+	private String paramValue;
 
-	public Short getId() {
-		return id;
+	public String getParamName() {
+		return paramName;
 	}
 
-	public void setId(Short id) {
-		this.id = id;
+	public void setParamName(String paramName) {
+		this.paramName = paramName;
 	}
 
-	public Long getBs() {
-		return bs;
+	public String getParamValue() {
+		return paramValue;
 	}
 
-	public void setBs(Long bs) {
-		this.bs = bs;
+	public void setParamValue(String paramValue) {
+		this.paramValue = paramValue;
 	}
 }

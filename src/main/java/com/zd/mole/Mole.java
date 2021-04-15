@@ -19,7 +19,7 @@ public class Mole {
 	
 	private Logger log = LoggerFactory.getLogger(getClass()); 
 	
-	private int consumerCount = 20;
+	private int consumerCount = 150;
 	
 	@Resource
 	private TaskProduct product;
@@ -31,8 +31,9 @@ public class Mole {
 	private MonitorRepository monitorRepository;
 	
 	public void start() {
+		int maxConsumer = 500;
 		//网络带宽 10M
-		int moleNetworkBandwidth = 128 * 1024 * 10;
+		int moleNetworkBandwidth = 1024 * 500;
 		//目标服务器的带宽
 		int targetNetworkBandwidth = 128 * 1024 * 10;
 		//设置快速代理保持数量
@@ -50,18 +51,22 @@ public class Mole {
 		log.info("消费者创建完成");
 		
 		Thread t = new Thread(() -> {
-			int interval = 1000; 
-			Monitor monitor = monitorRepository.findById((short) 1).orElse(new Monitor());
-			if(monitor.getId() == null)
-				monitorRepository.save(monitor);
+			int interval = 5000;
 			while(true) {
 				try {
 					Thread.sleep(interval);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				monitor.setBs(ProxyHttpXMLRequest.getBs());
+				Monitor monitor = new Monitor();
+				monitor.setParamName("bps");
+				long bps = ProxyHttpXMLRequest.getBps();
+				monitor.setParamValue(String.valueOf(bps));
 				monitorRepository.save(monitor);
+				if(bps < moleNetworkBandwidth && consumerCount < maxConsumer) {
+					executor.execute(consumer);
+					consumerCount++;
+				}
 			}
 		});
 		t.setDaemon(true);

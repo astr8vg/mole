@@ -17,15 +17,6 @@ public class MohurdDataserviceQueryCompListHandler implements ProcessHandler {
 
 	private Log log = LogFactory.getLog(getClass());
 	
-	/*
-	 * (non-Javadoc)
-	 * @see com.zd.mole.process.ProcessDataHandler#trim(java.lang.String)
-	 */
-	@Override
-	public String trim(String data) {
-		return data;
-	}
-
 	@Override
 	public List<Task> handler(Task task, String data) {
 		String regex = "<td class=\"text-left primary\" data-header=\"企业名称\">"

@@ -24,7 +24,7 @@ public class ProxyHttpXMLRequest {
 	private final static int READ_TIMEOUT = 60000;
 
 	private static LongAdder b = new LongAdder();
-	private static long bs = 0;
+	private static long bps = 0;
 	
 	static {
 		//计算每秒网速多少
@@ -36,7 +36,7 @@ public class ProxyHttpXMLRequest {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				bs = b.longValue() / (interval / 1000);
+				bps = b.longValue() / (interval / 1000);
 				b.reset();
 			}
 		});
@@ -115,7 +115,7 @@ public class ProxyHttpXMLRequest {
 	}
 
 	/** 每秒byte数 */
-	public static long getBs() {
-		return bs;
+	public static long getBps() {
+		return bps;
 	}
 }

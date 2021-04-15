@@ -11,6 +11,10 @@
 				<entry key="MohurdDataserviceQueryCompCompDetailHandler" value-ref="mohurdDataserviceQueryCompCompDetailHandler" />
 				<entry key="MohurdDataserviceQueryCompCaDetailListHandler" value-ref="mohurdDataserviceQueryCompCaDetailListHandler" />
 				<entry key="MohurdAsiteQualaptAptDataHandler" value-ref="mohurdAsiteQualaptAptDataHandler" />
+				<entry key="MohurdAsiteCreditRecordQueryHandler" value-ref="mohurdAsiteCreditRecordQueryHandler" />
+				<entry key="MohurdDataserviceQueryStaffListHandler" value-ref="mohurdDataserviceQueryStaffListHandler" />
+				<entry key="MohurdDataserviceQueryStaffstaffDetailHandler" value-ref="mohurdDataserviceQueryStaffstaffDetailHandler" />
+				<entry key="MohurdDataserviceQueryStaffStaffPerformanceListSysHandler" value-ref="mohurdDataserviceQueryStaffStaffPerformanceListSysHandler" />
 			</map>
 		</property>
 	</bean>

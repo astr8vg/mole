@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.zd.mole.net.HttpXMLRequest;
 import com.zd.mole.net.proxy.ProxyHttpXMLRequest;
 import com.zd.mole.process.ProcessHandler;
 import com.zd.mole.task.RequestMethod;
@@ -39,8 +40,10 @@ public class TaskConsumer implements Runnable {
 			headers.put("Accept-Encoding", "gzip");
 			try(ByteArrayOutputStream out = new ByteArrayOutputStream()){
 				if (task.getMethod() == RequestMethod.POST) {
+//					HttpXMLRequest.sendPost(httpUrl, headers, null, task.getParam(), out);
 					ProxyHttpXMLRequest.sendPost(httpUrl, headers, task.getParam(), out);
 				} else {
+//					HttpXMLRequest.sendGet(httpUrl, headers, null, out);
 					ProxyHttpXMLRequest.sendGet(httpUrl, headers, out);
 				}
 				String text = out.toString("utf-8");
@@ -57,6 +60,7 @@ public class TaskConsumer implements Runnable {
 				task.setStatus(TaskStatus.Ready);
 				taskService.update(task);
 			} catch (Exception e) {
+				log.error("保存失败[id:{}] {}", task.getId(), e.getMessage());
 				task.setStatus(TaskStatus.Failed);
 				taskService.update(task);
 			}

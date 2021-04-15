@@ -7,6 +7,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.zd.mole.task.TaskStatus;
@@ -16,10 +18,31 @@ import com.zd.mole.task.entity.Task;
 @Transactional
 public class TaskService {
 	
-//	private Logger log = LoggerFactory.getLogger(getClass());
+	private Logger log = LoggerFactory.getLogger(getClass());
 	
 	@PersistenceContext 
 	private EntityManager em;
+	
+	public void save(Task task) {
+		long count = 0;
+		if(task.getParam() == null) {
+			count = (long) em
+					.createQuery("select count(*) from Task where requestUrl = :requestUrl and param is null")
+					.setParameter("requestUrl", task.getRequestUrl())
+					.getSingleResult();
+		} else {
+			count = (long) em
+				.createQuery("select count(*) from Task where requestUrl = :requestUrl and param = :param")
+				.setParameter("requestUrl", task.getRequestUrl())
+				.setParameter("param", task.getParam())
+				.getSingleResult();
+		}
+		if(count > 0) {
+			log.warn("已存在路径和参数相同的任务，未插入新任务：{} {}", task.getRequestUrl(), task.getParam());
+		} else {
+			em.persist(task);
+		}
+	}
 
 	public void update(Task task) {
 		em.merge(task);
@@ -30,7 +53,7 @@ public class TaskService {
 		int count = em.createQuery("update Task set status = :newStatus where status in :status")
 					.setParameter("newStatus", TaskStatus.Ready)
 					.setParameter("status", Arrays.asList(
-							TaskStatus.InTheQueue, 
+							TaskStatus.InTheQueue,
 							TaskStatus.Failed
 					))
 					.executeUpdate();

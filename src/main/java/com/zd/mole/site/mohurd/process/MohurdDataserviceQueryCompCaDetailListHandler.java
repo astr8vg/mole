@@ -39,12 +39,6 @@ public class MohurdDataserviceQueryCompCaDetailListHandler implements ProcessHan
 	private SysDictService sysDictService;
 	
 	@Override
-	public String trim(String data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public List<Task> handler(Task task, String data) {
 		String regex = "<tr class=\"row\">((?:\\r\\n|.)*?)</tr>";
 		Pattern p = Pattern.compile(regex);
@@ -86,16 +80,4 @@ public class MohurdDataserviceQueryCompCaDetailListHandler implements ProcessHan
 		return null;
 	}
 	
-	public static void main(String[] args) throws IOException {
-		FileInputStream in = new FileInputStream("d:\\1.html.txt");
-		InputStreamReader r = new InputStreamReader(in);
-		BufferedReader reader = new BufferedReader(r);
-		String text = "";
-		String s;
-		while((s = reader.readLine()) != null) {
-			text += s + "\r\n"; 
-		}
-		MohurdDataserviceQueryCompCaDetailListHandler handler = new MohurdDataserviceQueryCompCaDetailListHandler();
-		handler.handler(new Task(), text);
-	}
 }

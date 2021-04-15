@@ -18,11 +18,19 @@ import com.zd.mole.task.TaskStatus;
 @Entity
 @Table(
 	name = "mole_task",
-	indexes = @Index(
-        name = "idx_request_url",
+	indexes = {@Index(
+        name = "idx_request_url_param",
+        columnList = "requestURL, param",
+        unique = false
+    ),@Index(
+		name = "idx_request_url",
         columnList = "requestURL",
         unique = false
-    )
+	),@Index(
+		name = "idx_remark",
+		columnList = "remark",
+        unique = false		
+    )}
 )
 public class Task {
 	
@@ -51,6 +59,9 @@ public class Task {
 	
 	/** 处理类名称 */
 	private String processHandlerClassName;
+	
+	/** 备注 */
+	private String remark;
 	
 	public Long getId() {
 		return id;
@@ -114,6 +125,14 @@ public class Task {
 
 	public void setCode(String code) {
 		this.code = code;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 }

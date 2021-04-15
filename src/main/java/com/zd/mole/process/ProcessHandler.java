@@ -16,14 +16,14 @@ public interface ProcessHandler {
 	 */
 	String URL_REGEX = "((https?://)?([\\w\\d]+\\.)+[\\w\\d]+)?(/?.+)";
 	
-	String CN_REGEX = "([\u4e00-\u9fa5\\（\\）\\-\\w\\d\\(\\)\\、]+)";
+	String CN_REGEX = "\\s*([\u4e00-\u9fa5\\·\\（\\）\\【\\】\\《\\》\\〔\\〕\\、\\，\\。\\：\\；\\”\\“\\w\\d\\s\\(\\)\\[\\]\\{\\}\\.-]+)\\s*";
 	
-	/**
-	 * 保存数据时修剪数据
-	 * @param data
-	 * @return
-	 */
-	String trim (String text);
+	String INNER_HTML = "([\\s\\S]*?)";
+	String INNER_HTML2 = "((?:\\r\\n|.)*?)";
+	
+	String NUMBER = "([\\d\\.]+)";
+	
+	String FORMAT_DATE = "(\\d{4}-\\d{2}-\\d{2})";
 	
 	/**
 	 * 处理数据
