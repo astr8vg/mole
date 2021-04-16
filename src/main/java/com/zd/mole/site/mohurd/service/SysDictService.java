@@ -30,7 +30,7 @@ public class SysDictService {
 		return Optional.ofNullable(value).orElse(label);
 	}
 	
-	public String findOrSaveByTypeLabel(String type, String label) {
+	public String findOrSaveByTypeLabel(String type, String label, String description) {
 		List<Sys_dict> dicts = em.createQuery("from Sys_dict where type = :type and label = :label")
 				.setParameter("type", type)
 				.setParameter("label", label)
@@ -47,6 +47,7 @@ public class SysDictService {
 			dict.setType(type);
 			dict.setLabel(label);
 			dict.setValue(uuid);
+			dict.setDescription(description);
 			dict.setId(uuid);
 			dict.setSort(new BigDecimal(0));
 			em.persist(dict);

@@ -43,6 +43,14 @@ public class TaskService {
 			em.persist(task);
 		}
 	}
+	
+	public int update(long id, TaskStatus status) {
+		int count =	em.createQuery("update Task set status = :newStatus where id = :id")
+					.setParameter("newStatus", status)
+					.setParameter("id", id)
+					.executeUpdate();
+		return count;
+	}
 
 	public void update(Task task) {
 		em.merge(task);

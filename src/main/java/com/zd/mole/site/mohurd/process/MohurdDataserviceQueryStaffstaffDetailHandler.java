@@ -38,7 +38,8 @@ public class MohurdDataserviceQueryStaffstaffDetailHandler implements ProcessHan
 
 	private Log log = LogFactory.getLog(getClass());
 	
-	private final static String CN_REGEX = "([\u4e00-\u9fa5（）ⅠⅡ、/\\-\\w\\d\\(\\)]+)";
+	private final static String CN_REGEX2 = "([\u4e00-\u9fa5·（）ⅠⅡ、/\\-\\w\\d\\(\\)\\[\\]]+)";
+	private final static String CN_REGEX_NAME = "([\u4e00-\u9fa5·（）ⅠⅡ、/\\-\\w\\d\\(\\)\\[\\]]+)";
 	
 	@PersistenceContext 
 	private EntityManager em;
@@ -58,27 +59,18 @@ public class MohurdDataserviceQueryStaffstaffDetailHandler implements ProcessHan
 		person_info.setId(task.getCode());
 
 		String cnname = RegexUtils.find("<div class=\"user_info spmtop\">"
-				+ "\\s*<b><i class=\"fa fa-user\"></i> " + CN_REGEX + "<!-- <span>\\d{10}\\*{6}\\d[\\d\\w]</span> --></b>"
-				+ "\\s*</div>", text);
+				+ "\\s*<b><i class=\"fa fa-user\"></i> " + CN_REGEX_NAME + "<!-- <span>", text);
 		person_info.setName(cnname);
 		
-		String sex = RegexUtils.find("<dd class=\"query_info_dd1\"><span>性别：</span>" + CN_REGEX + "</dd>", text);
-		List<Sys_dict> dicts = em.createQuery("from Sys_dict where type = 'oLife_SexType' and label = :label")
-				.setParameter("label", sex)
-				.getResultList();
-		String value = dicts.stream().findFirst().orElse(new Sys_dict()).getValue();
-		sex = Optional.ofNullable(value).orElse(sex);
+		String sex = RegexUtils.find("<dd class=\"query_info_dd1\"><span>性别：</span>" + CN_REGEX2 + "</dd>", text);
+		sex = sysDictService.findOrSaveByTypeLabel("oLife_SexType", sex, "性别类型");
 		person_info.setSex(sex);
 		
-		String custType = RegexUtils.find("<dd class=\"query_info_dd2\"><span>证件类型：</span>" + CN_REGEX + "</dd>", text);
-		dicts = em.createQuery("from Sys_dict where type = 'oLife_Custtype' and label = :label")
-				.setParameter("label", custType)
-				.getResultList();
-		value = dicts.stream().findFirst().orElse(new Sys_dict()).getValue();
-		custType = Optional.ofNullable(value).orElse(sex);
+		String custType = RegexUtils.find("<dd class=\"query_info_dd2\"><span>证件类型：</span>" + CN_REGEX2 + "</dd>", text);
+		custType = sysDictService.findOrSaveByTypeLabel("oLife_Custtype", custType, "证件类型");
 		person_info.setCustType(custType);
 	
-		String custId = RegexUtils.find("<dd class=\"query_info_dd2\"><span>证件号码：</span>(\\d{10}\\*{6}\\d[\\d\\w])</dd>", text);
+		String custId = RegexUtils.find("<dd class=\"query_info_dd2\"><span>证件号码：</span>(.+)</dd>", text);
 		person_info.setCustId(custId);
 		person_info.setCreate_by("1");
 		person_info.setCreate_date(new Date());
@@ -103,11 +95,11 @@ public class MohurdDataserviceQueryStaffstaffDetailHandler implements ProcessHan
 			Ot_practice_info ot_practice_info = new Ot_practice_info();
 			ot_practice_info.setId(id);
 			ot_practice_info.setCustId(person_info.getId());
-			String RegisterType = RegexUtils.find("<dd><span>注册类别：</span><b>(" + CN_REGEX + ")</b></dd>", dl);
-			ot_practice_info.setRegisterType(sysDictService.findOrSaveByTypeLabel("oLife_PerRegisterType", RegisterType));
-			ot_practice_info.setMajor(RegexUtils.find("<dd><span>注册专业：</span>" + CN_REGEX + "</dd>", dl));
-			ot_practice_info.setCertificate(RegexUtils.find("<dd><span>证书编号：</span>" + CN_REGEX + "</dd>", dl));
-			ot_practice_info.setPracticeNo(RegexUtils.find("<dd><span>执业印章号：</span>" + CN_REGEX + "</dd>", dl));
+			String RegisterType = RegexUtils.find("<dd><span>注册类别：</span><b>(" + CN_REGEX2 + ")</b></dd>", dl);
+			ot_practice_info.setRegisterType(sysDictService.findOrSaveByTypeLabel("oLife_PerRegisterType", RegisterType, "注册类别"));
+			ot_practice_info.setMajor(RegexUtils.find("<dd><span>注册专业：</span>" + CN_REGEX2 + "</dd>", dl));
+			ot_practice_info.setCertificate(RegexUtils.find("<dd><span>证书编号：</span>" + CN_REGEX2 + "</dd>", dl));
+			ot_practice_info.setPracticeNo(RegexUtils.find("<dd><span>执业印章号：</span>" + CN_REGEX2 + "</dd>", dl));
 			ot_practice_info.setValidDate(RegexUtils.find("<dd><span>有效期：</span>(\\d{4}年\\d{2}月\\d{2}日)</dd>", dl));
 			
 			String register = RegexUtils.find("<dt><span>注册单位：</span>" 
@@ -117,7 +109,7 @@ public class MohurdDataserviceQueryStaffstaffDetailHandler implements ProcessHan
 			
 			if("".equals(register)) {
 				register = RegexUtils.find("<dt><span>注册单位：</span>" + 
-						"\\s*" + CN_REGEX, dl); 
+						"\\s*" + CN_REGEX2, dl); 
 			}
 			ot_practice_info.setRegister(register);
 			ot_practice_info.setCreate_by("1");
@@ -126,7 +118,7 @@ public class MohurdDataserviceQueryStaffstaffDetailHandler implements ProcessHan
 			ot_practice_info.setUpdate_date(new Date());
 			ot_practice_info.setDel_flag("0");
 			ot_practice_info.setCheck_status("0");
-			em.persist(ot_practice_info);
+			em.merge(ot_practice_info);
 			
 			//注册企业
 			Ot_register_info register_info = new Ot_register_info();
@@ -142,7 +134,7 @@ public class MohurdDataserviceQueryStaffstaffDetailHandler implements ProcessHan
 			register_info.setUpdate_by("1");
 			register_info.setUpdate_date(new Date());
 			register_info.setDel_flag("0");
-			em.persist(register_info);
+			em.merge(register_info);
 			//未写注册专业，注册专业页面无该数据
 			i++;
 		}
