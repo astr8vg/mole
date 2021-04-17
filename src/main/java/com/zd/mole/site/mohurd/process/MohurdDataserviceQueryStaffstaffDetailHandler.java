@@ -2,7 +2,6 @@ package com.zd.mole.site.mohurd.process;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,10 +18,10 @@ import com.zd.mole.process.ProcessHandler;
 import com.zd.mole.site.mohurd.entity.Ot_person_info;
 import com.zd.mole.site.mohurd.entity.Ot_practice_info;
 import com.zd.mole.site.mohurd.entity.Ot_register_info;
-import com.zd.mole.site.mohurd.entity.Sys_dict;
 import com.zd.mole.site.mohurd.repository.OtCompanyInfoRepository;
 import com.zd.mole.site.mohurd.service.SysDictService;
 import com.zd.mole.task.RequestMethod;
+import com.zd.mole.task.TaskStatus;
 import com.zd.mole.task.entity.Task;
 import com.zd.mole.task.service.TaskService;
 import com.zd.mole.utils.RegexUtils;
@@ -39,7 +38,7 @@ public class MohurdDataserviceQueryStaffstaffDetailHandler implements ProcessHan
 	private Log log = LogFactory.getLog(getClass());
 	
 	private final static String CN_REGEX2 = "([\u4e00-\u9fa5·（）ⅠⅡ、/\\-\\w\\d\\(\\)\\[\\]]+)";
-	private final static String CN_REGEX_NAME = "([\u4e00-\u9fa5·（）ⅠⅡ、/\\-\\w\\d\\(\\)\\[\\]]+)";
+	private final static String CN_REGEX_NAME = "([\u4e00-\u9fa5·．（）ⅠⅡ、/\\-\\w\\d\\(\\)\\[\\]]+)";
 	
 	@PersistenceContext 
 	private EntityManager em;
@@ -147,13 +146,14 @@ public class MohurdDataserviceQueryStaffstaffDetailHandler implements ProcessHan
 //		newTask.setStatus(TaskStatus.Ready);
 		newTask.setProcessHandlerClassName("MohurdDataserviceQueryStaffStaffPerformanceListSysHandler");
 		taskService.save(newTask);
+		
 		//个人变更记录（任务）
 		Task newTask2 = new Task();
 		newTask2.setCode(task.getCode());
 		newTask2.setHostUrl(task.getHostUrl());
 		newTask2.setRequestUrl("/dataservice/query/staff/staffWorkRecordList/" + task.getCode());
 		newTask2.setMethod(RequestMethod.GET);
-//		newTask2.setStatus(TaskStatus.Ready);
+		newTask2.setStatus(TaskStatus.Ready);
 		newTask2.setProcessHandlerClassName("MohurdDataserviceQueryStaffStaffWorkRecordListHandler");
 		taskService.save(newTask2);
 		return null;

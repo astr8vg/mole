@@ -52,6 +52,7 @@ public class TaskService {
 		return count;
 	}
 
+	@Deprecated
 	public void update(Task task) {
 		em.merge(task);
 //		log.debug( "任务" + task.getId() + "已更新" );

@@ -15,6 +15,7 @@
 				<entry key="MohurdDataserviceQueryStaffListHandler" value-ref="mohurdDataserviceQueryStaffListHandler" />
 				<entry key="MohurdDataserviceQueryStaffstaffDetailHandler" value-ref="mohurdDataserviceQueryStaffstaffDetailHandler" />
 				<entry key="MohurdDataserviceQueryStaffStaffPerformanceListSysHandler" value-ref="mohurdDataserviceQueryStaffStaffPerformanceListSysHandler" />
+				<entry key="MohurdDataserviceQueryStaffStaffWorkRecordListHandler" value-ref="mohurdDataserviceQueryStaffStaffWorkRecordListHandler" />
 			</map>
 		</property>
 	</bean>

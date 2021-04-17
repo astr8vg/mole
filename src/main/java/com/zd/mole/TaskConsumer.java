@@ -52,17 +52,14 @@ public class TaskConsumer implements Runnable {
 					log.error("ProcessHandler：" + task.getProcessHandlerClassName()+ " 获取失败");
 				}
 				ph.handler(task, text);
-				
-				task.setStatus(TaskStatus.Succeed);
-				taskService.update(task);
+				taskService.update(task.getId(), TaskStatus.Succeed);
 			} catch (IOException e) {
-				log.error("保存失败[id:{}] {}", task.getId(), e.getMessage());
-				task.setStatus(TaskStatus.Ready);
-				taskService.update(task);
+				log.error("保存失败IO[id:{}] {}", task.getId(), e.getMessage());
+				taskService.update(task.getId(), TaskStatus.Ready);
 			} catch (Exception e) {
 				log.error("保存失败[id:{}] {}", task.getId(), e.getMessage());
-				task.setStatus(TaskStatus.Failed);
-				taskService.update(task);
+				e.printStackTrace();
+				taskService.update(task.getId(), TaskStatus.Failed);
 			}
 		}
 	}

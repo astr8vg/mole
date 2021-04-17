@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.zd.mole.net.proxy.ProxyHttpXMLRequest;
@@ -19,7 +20,11 @@ public class Mole {
 	
 	private Logger log = LoggerFactory.getLogger(getClass()); 
 	
-	private int consumerCount = 150;
+	@Value("${mole.consumer.maxcount}")
+	private int maxConsumer = 150;
+
+	@Value("${mole.consumer.count}")
+	private int consumerCount = 100;
 	
 	@Resource
 	private TaskProduct product;
@@ -31,7 +36,6 @@ public class Mole {
 	private MonitorRepository monitorRepository;
 	
 	public void start() {
-		int maxConsumer = 500;
 		//网络带宽 10M
 		int moleNetworkBandwidth = 1024 * 500;
 		//目标服务器的带宽
@@ -62,10 +66,20 @@ public class Mole {
 				monitor.setParamName("bps");
 				long bps = ProxyHttpXMLRequest.getBps();
 				monitor.setParamValue(String.valueOf(bps));
-				monitorRepository.save(monitor);
-				if(bps < moleNetworkBandwidth && consumerCount < maxConsumer) {
-					executor.execute(consumer);
-					consumerCount++;
+				try {
+					monitorRepository.save(monitor);
+					if(bps < moleNetworkBandwidth && consumerCount < maxConsumer) {
+						executor.execute(consumer);
+						consumerCount++;
+						log.info("\"监控线程：增加工作线程到{}个", consumerCount);
+						
+						Monitor monitor2 = new Monitor();
+						monitor2.setParamName("TaskConsumerThread");
+						monitor2.setParamValue(String.valueOf(consumerCount));
+						monitorRepository.save(monitor);
+					}
+				} catch (Exception e) {
+					log.error("监控线程：{} ", e.getMessage());
 				}
 			}
 		});

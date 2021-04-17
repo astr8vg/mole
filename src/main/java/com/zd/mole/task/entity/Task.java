@@ -34,6 +34,10 @@ import com.zd.mole.task.TaskStatus;
 		name = "idx_code",
 		columnList = "code",
         unique = false		
+	),@Index(
+		name = "idx_status",
+		columnList = "status",
+        unique = false
     )}
 )
 public class Task {

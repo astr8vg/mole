@@ -47,4 +47,8 @@ public class TaskStore {
 	public void setStore(LinkedList<Task> store) {
 		this.store = store;
 	}
+
+	public int getStoreSize() {
+		return storeSize;
+	}
 }

@@ -17,7 +17,7 @@ public interface ProcessHandler {
 	String URL_REGEX = "((https?://)?([\\w\\d]+\\.)+[\\w\\d]+)?(/?.+)";
 	
 	String CN_REGEX = "\\s*([\u4e00-\u9fa5\\·\\（\\）\\【\\】\\《\\》\\〔\\〕\\、\\，\\。\\：\\；\\”\\“\\w\\d\\s\\(\\)\\[\\]\\{\\}\\.-]+)\\s*";
-	String CN_REGEX_NO_S = "([\u4e00-\u9fa5\\·\\（\\）\\【\\】\\《\\》\\〔\\〕\\、\\，\\。\\：\\；\\”\\“\\w\\d\\s\\(\\)\\[\\]\\{\\}\\.-]+)";
+	String CN_REGEX_NO_S = "([\u4e00-\u9fa5·—（）【】《》〔〕、，。：；”“\\w\\d\\s\\(\\)\\[\\]\\{\\}\\.-]+)";
 	
 	String INNER_HTML = "([\\s\\S]*?)";
 	String INNER_HTML2 = "((?:\\r\\n|.)*?)";

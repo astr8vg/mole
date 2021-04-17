@@ -29,11 +29,14 @@ public class TaskProduct implements Runnable {
 	public void run() {
 		int resetCount = taskService.reset();
 		log.info("重置任务状态{}个", resetCount);
+		readyCount = store.getStoreSize();
+		if(readyCount > 200) {
+			readyCount = 200;
+		}
 		while(true) {
 			List<Task> tasks = taskService.findByStatus(TaskStatus.Ready, readyCount);
 			for (Task task : tasks) {
-				task.setStatus(TaskStatus.InTheQueue);
-				taskService.update(task);
+				taskService.update(task.getId(), TaskStatus.InTheQueue);
 				store.put(task);
 			}
 			if(tasks.size() == 0) {
@@ -49,4 +52,5 @@ public class TaskProduct implements Runnable {
 	public void setStore(TaskStore store) {
 		this.store = store;
 	}
+
 }
